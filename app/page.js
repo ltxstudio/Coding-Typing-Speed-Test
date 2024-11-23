@@ -8,88 +8,35 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // Include PrismJS theme
 
 const codeSnippets = {
-  js: `// JavaScript - Fibonacci Sequence
-function fibonacci(n) {
-  let a = 0, b = 1, temp;
-  while (n-- > 0) {
-    temp = a;
-    a = b;
-    b = temp + b;
-  }
-  return a;
+  js: `// JavaScript
+function greet(name) {
+  return 'Hello, ' + name;
 }
-console.log(fibonacci(10));`,
-  py: `# Python - Palindrome Checker
-def is_palindrome(s):
-    return s == s[::-1]
 
-word = "radar"
-print(is_palindrome(word))`,
-  go: `// Go - Factorial Function
+console.log(greet('World'));`,
+  py: `# Python
+def greet(name):
+    return "Hello, " + name
+
+print(greet("World"))`,
+  go: `// Go
 package main
 
 import "fmt"
 
-func factorial(n int) int {
-  if n == 0 {
-    return 1
-  }
-  return n * factorial(n-1)
+func greet(name string) string {
+  return "Hello, " + name
 }
 
 func main() {
-  fmt.Println(factorial(5))
+  fmt.Println(greet("World"))
 }`,
-  java: `// Java - Reverse a String
+  java: `// Java
 public class Main {
   public static void main(String[] args) {
-    String str = "Hello World";
-    String reversed = new StringBuilder(str).reverse().toString();
-    System.out.println(reversed);
+    System.out.println("Hello, World!");
   }
 }`,
-  rust: `// Rust - Find Maximum in Array
-fn max_in_array(arr: &[i32]) -> i32 {
-  *arr.iter().max().unwrap()
-}
-
-fn main() {
-  let numbers = [3, 1, 4, 1, 5];
-  println!("Max: {}", max_in_array(&numbers));
-}`,
-  php: `// PHP - Count Vowels
-<?php
-function count_vowels($str) {
-  return preg_match_all('/[aeiou]/i', $str);
-}
-
-echo count_vowels("Hello World");
-?>`,
-  swift: `// Swift - Prime Checker
-func isPrime(_ n: Int) -> Bool {
-  if n <= 1 { return false }
-  for i in 2..<n {
-    if n % i == 0 { return false }
-  }
-  return true
-}
-
-print(isPrime(7))`,
-  kotlin: `// Kotlin - Sum of Array
-fun sumArray(arr: IntArray): Int {
-  return arr.sum()
-}
-
-fun main() {
-  val nums = intArrayOf(1, 2, 3, 4, 5)
-  println("Sum: ${sumArray(nums)}")
-}`,
-  ruby: `# Ruby - Check Even or Odd
-def even_or_odd(num)
-  num.even? ? "Even" : "Odd"
-end
-
-puts even_or_odd(7)`
 };
 
 export default function Home() {
@@ -102,15 +49,14 @@ export default function Home() {
   const [accuracy, setAccuracy] = useState(100);
   const [errors, setErrors] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [showModal, setShowModal] = useState(false);
-  const [highlightedText, setHighlightedText] = useState('');
   const [darkMode, setDarkMode] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const inputRef = useRef(null);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    Prism.highlightAll(); // Apply syntax highlighting
+    Prism.highlightAll(); // Reapply syntax highlighting whenever code changes
   }, [textToType]);
 
   const startTimer = () => {
@@ -133,7 +79,6 @@ export default function Home() {
     setErrors(0);
     setProgress(0);
     setShowModal(false);
-    setHighlightedText('');
   };
 
   const handleLanguageChange = (e) => {
@@ -149,13 +94,11 @@ export default function Home() {
 
     if (!isTyping) startTimer();
 
-    const errorCount = countErrors(input, textToType);
-    setErrors(errorCount);
+    const currentErrors = countErrors(input, textToType);
+    setErrors(currentErrors);
 
     const progressPercentage = Math.round((input.length / textToType.length) * 100);
     setProgress(progressPercentage);
-
-    highlightErrors(input, textToType);
 
     if (input === textToType) {
       stopTimer();
@@ -167,24 +110,10 @@ export default function Home() {
 
   const countErrors = (input, text) => {
     let errorCount = 0;
-    for (let i = 0; i < input.length; i++) {
+    for (let i = 0; i < Math.max(input.length, text.length); i++) {
       if (input[i] !== text[i]) errorCount++;
     }
     return errorCount;
-  };
-
-  const highlightErrors = (input, text) => {
-    let highlighted = '';
-    for (let i = 0; i < text.length; i++) {
-      if (input[i] === text[i]) {
-        highlighted += `<span class="text-green-500">${text[i]}</span>`;
-      } else if (i < input.length) {
-        highlighted += `<span class="text-red-500">${text[i]}</span>`;
-      } else {
-        highlighted += text[i];
-      }
-    }
-    setHighlightedText(highlighted);
   };
 
   const calculateWPM = (input) => {
@@ -239,8 +168,11 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          dangerouslySetInnerHTML={{ __html: highlightedText || `<pre><code>${textToType}</code></pre>` }}
-        />
+        >
+          <pre className={`language-${language}`}>
+            <code>{textToType}</code>
+          </pre>
+        </motion.div>
 
         <textarea
           ref={inputRef}
@@ -271,39 +203,43 @@ export default function Home() {
         <div className="mt-6 flex justify-between">
           <button
             onClick={resetTest}
-            className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md"
           >
-            Reset
+            <ArrowPathIcon className="w-5 h-5 mr-2" />
+            Restart
           </button>
-          <button
-            onClick={isTyping ? stopTimer : startTimer}
-            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600"
-          >
-            {isTyping ? <StopIcon className="h-5 w-5" /> : <PlayIcon className="h-5 w-5" />}
-          </button>
-          <button
-            onClick={resetTest}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
-          >
-            <ArrowPathIcon className="h-5 w-5" />
-          </button>
+          {isTyping ? (
+            <button
+              onClick={stopTimer}
+              className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              <StopIcon className="w-5 h-5 mr-2" />
+              Stop
+            </button>
+          ) : (
+            <button
+              onClick={startTimer}
+              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md"
+            >
+              <PlayIcon className="w-5 h-5 mr-2" />
+              Start
+            </button>
+          )}
         </div>
       </div>
 
       {showModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-          onClick={() => setShowModal(false)}
-        >
-          <div className="bg-white p-6 rounded-xl w-1/3">
-            <h2 className="text-2xl font-semibold">Test Complete!</h2>
-            <p className="mt-4">Your WPM: {wpm}</p>
-            <p>Your Accuracy: {accuracy}%</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Test Complete!</h2>
+            <p className="text-lg">WPM: {wpm}</p>
+            <p className="text-lg">Accuracy: {accuracy}%</p>
+            <p className="text-lg text-red-500">Errors: {errors}</p>
             <button
-              onClick={() => setShowModal(false)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-full mt-6"
+              onClick={resetTest}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
             >
-              Close
+              Try Again
             </button>
           </div>
         </div>
