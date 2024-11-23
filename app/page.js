@@ -8,35 +8,88 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // Include PrismJS theme
 
 const codeSnippets = {
-  js: `// JavaScript
-function greet(name) {
-  return 'Hello, ' + name;
+  js: `// JavaScript - Fibonacci Sequence
+function fibonacci(n) {
+  let a = 0, b = 1, temp;
+  while (n-- > 0) {
+    temp = a;
+    a = b;
+    b = temp + b;
+  }
+  return a;
 }
+console.log(fibonacci(10));`,
+  py: `# Python - Palindrome Checker
+def is_palindrome(s):
+    return s == s[::-1]
 
-console.log(greet('World'));`,
-  py: `# Python
-def greet(name):
-    return "Hello, " + name
-
-print(greet("World"))`,
-  go: `// Go
+word = "radar"
+print(is_palindrome(word))`,
+  go: `// Go - Factorial Function
 package main
 
 import "fmt"
 
-func greet(name string) string {
-  return "Hello, " + name
+func factorial(n int) int {
+  if n == 0 {
+    return 1
+  }
+  return n * factorial(n-1)
 }
 
 func main() {
-  fmt.Println(greet("World"))
+  fmt.Println(factorial(5))
 }`,
-  java: `// Java
+  java: `// Java - Reverse a String
 public class Main {
   public static void main(String[] args) {
-    System.out.println("Hello, World!");
+    String str = "Hello World";
+    String reversed = new StringBuilder(str).reverse().toString();
+    System.out.println(reversed);
   }
 }`,
+  rust: `// Rust - Find Maximum in Array
+fn max_in_array(arr: &[i32]) -> i32 {
+  *arr.iter().max().unwrap()
+}
+
+fn main() {
+  let numbers = [3, 1, 4, 1, 5];
+  println!("Max: {}", max_in_array(&numbers));
+}`,
+  php: `// PHP - Count Vowels
+<?php
+function count_vowels($str) {
+  return preg_match_all('/[aeiou]/i', $str);
+}
+
+echo count_vowels("Hello World");
+?>`,
+  swift: `// Swift - Prime Checker
+func isPrime(_ n: Int) -> Bool {
+  if n <= 1 { return false }
+  for i in 2..<n {
+    if n % i == 0 { return false }
+  }
+  return true
+}
+
+print(isPrime(7))`,
+  kotlin: `// Kotlin - Sum of Array
+fun sumArray(arr: IntArray): Int {
+  return arr.sum()
+}
+
+fun main() {
+  val nums = intArrayOf(1, 2, 3, 4, 5)
+  println("Sum: {sumArray(nums)}")
+}`,
+  ruby: `# Ruby - Check Even or Odd
+def even_or_odd(num)
+  num.even? ? "Even" : "Odd"
+end
+
+puts even_or_odd(7)`
 };
 
 export default function Home() {
@@ -49,14 +102,15 @@ export default function Home() {
   const [accuracy, setAccuracy] = useState(100);
   const [errors, setErrors] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [highlightedText, setHighlightedText] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
 
   const inputRef = useRef(null);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    Prism.highlightAll(); // Reapply syntax highlighting whenever code changes
+    Prism.highlightAll(); // Apply syntax highlighting
   }, [textToType]);
 
   const startTimer = () => {
@@ -71,7 +125,6 @@ export default function Home() {
   };
 
   const resetTest = () => {
-    stopTimer();
     setUserInput('');
     setTimer(0);
     setWpm(0);
@@ -79,13 +132,14 @@ export default function Home() {
     setErrors(0);
     setProgress(0);
     setShowModal(false);
+    setHighlightedText('');
   };
 
   const handleLanguageChange = (e) => {
     const selectedLanguage = e.target.value;
     setLanguage(selectedLanguage);
     setTextToType(codeSnippets[selectedLanguage]);
-    resetTest();
+    resetTest(); // Reset on language change
   };
 
   const handleInputChange = (e) => {
@@ -94,11 +148,13 @@ export default function Home() {
 
     if (!isTyping) startTimer();
 
-    const currentErrors = countErrors(input, textToType);
-    setErrors(currentErrors);
+    const errorCount = countErrors(input, textToType);
+    setErrors(errorCount);
 
     const progressPercentage = Math.round((input.length / textToType.length) * 100);
     setProgress(progressPercentage);
+
+    highlightErrors(input, textToType);
 
     if (input === textToType) {
       stopTimer();
@@ -110,10 +166,24 @@ export default function Home() {
 
   const countErrors = (input, text) => {
     let errorCount = 0;
-    for (let i = 0; i < Math.max(input.length, text.length); i++) {
+    for (let i = 0; i < input.length; i++) {
       if (input[i] !== text[i]) errorCount++;
     }
     return errorCount;
+  };
+
+  const highlightErrors = (input, text) => {
+    let highlighted = '';
+    for (let i = 0; i < text.length; i++) {
+      if (input[i] === text[i]) {
+        highlighted += `<span class="text-green-500">${text[i]}</span>`;
+      } else if (i < input.length) {
+        highlighted += `<span class="text-red-500">${text[i]}</span>`;
+      } else {
+        highlighted += text[i];
+      }
+    }
+    setHighlightedText(highlighted);
   };
 
   const calculateWPM = (input) => {
@@ -168,11 +238,8 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-        >
-          <pre className={`language-${language}`}>
-            <code>{textToType}</code>
-          </pre>
-        </motion.div>
+          dangerouslySetInnerHTML={{ __html: highlightedText || `<pre><code>${textToType}</code></pre>` }}
+        />
 
         <textarea
           ref={inputRef}
