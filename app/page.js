@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react';
+import clsx from 'clsx';
+import ReactTooltip from 'react-tooltip';
+import { PlayIcon, StopIcon, RefreshIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline';
+import { motion } from 'framer-motion';
 
 const codeSnippets = {
   js: `// JavaScript
@@ -64,7 +68,7 @@ greet('World');`,
 };
 
 export default function Home() {
-  const [language, setLanguage] = useState('js'); // Default language is JavaScript
+  const [language, setLanguage] = useState('js');
   const [textToType, setTextToType] = useState(codeSnippets.js);
   const [userInput, setUserInput] = useState('');
   const [timer, setTimer] = useState(0);
@@ -72,11 +76,13 @@ export default function Home() {
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [showModal, setShowModal] = useState(false);
+  const [errors, setErrors] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
   const inputRef = useRef(null);
   const timerRef = useRef(null);
 
-  // Function to start the timer
   const startTimer = () => {
     setIsTyping(true);
     timerRef.current = setInterval(() => {
@@ -84,13 +90,11 @@ export default function Home() {
     }, 1000);
   };
 
-  // Function to stop the timer
   const stopTimer = () => {
     clearInterval(timerRef.current);
     setIsTyping(false);
   };
 
-  // Function to handle language selection
   const handleLanguageChange = (event) => {
     const selectedLang = event.target.value;
     setLanguage(selectedLang);
@@ -100,9 +104,10 @@ export default function Home() {
     setWpm(0);
     setAccuracy(100);
     setShowModal(false);
+    setProgress(0);
+    setErrors(0);
   };
 
-  // Function to handle user input change
   const handleInputChange = (e) => {
     const input = e.target.value;
     setUserInput(input);
@@ -110,6 +115,12 @@ export default function Home() {
     if (!isTyping) {
       startTimer();
     }
+
+    const currentErrors = countErrors(input, textToType);
+    setErrors(currentErrors);
+
+    const progressPercentage = Math.round((input.length / textToType.length) * 100);
+    setProgress(progressPercentage);
 
     if (input === textToType) {
       stopTimer();
@@ -119,7 +130,16 @@ export default function Home() {
     }
   };
 
-  // Function to calculate WPM (words per minute)
+  const countErrors = (input, text) => {
+    let errors = 0;
+    for (let i = 0; i < Math.max(input.length, text.length); i++) {
+      if (input[i] !== text[i]) {
+        errors++;
+      }
+    }
+    return errors;
+  };
+
   const calculateWPM = (input) => {
     const words = input.trim().split(' ').length;
     const minutes = timer / 60;
@@ -127,7 +147,6 @@ export default function Home() {
     setWpm(calculatedWpm);
   };
 
-  // Function to calculate accuracy
   const calculateAccuracy = (input) => {
     let correct = 0;
     for (let i = 0; i < Math.min(input.length, textToType.length); i++) {
@@ -139,7 +158,6 @@ export default function Home() {
     setAccuracy(calculatedAccuracy);
   };
 
-  // Function to reset the test
   const resetTest = () => {
     setUserInput('');
     setTimer(0);
@@ -147,12 +165,28 @@ export default function Home() {
     setAccuracy(100);
     setIsTyping(false);
     setShowModal(false);
+    setErrors(0);
+    setProgress(0);
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-center mb-4">Coding Typing Speed Test</h1>
-      <p className="text-lg text-center mb-8">Select a programming language and type the code below:</p>
+    <div className={clsx('min-h-screen p-4', darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100')}>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Coding Typing Speed Test</h1>
+        <button
+          onClick={toggleDarkMode}
+          className="p-2 rounded-full bg-gray-800 text-white focus:outline-none"
+          aria-label="Toggle Dark Mode"
+        >
+          {darkMode ? '🌙' : '🌞'}
+        </button>
+      </div>
+
+      <div className="text-lg text-center mb-6">Select a programming language and type the code below:</div>
 
       <div className="mb-6">
         <label htmlFor="language" className="text-lg mr-2">Choose Language:</label>
@@ -173,8 +207,15 @@ export default function Home() {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-2xl">
-        <div className="text-lg font-semibold text-gray-700 mb-6 whitespace-pre-wrap">{textToType}</div>
-        
+        <motion.div
+          className="text-lg font-semibold text-gray-700 mb-6 whitespace-pre-wrap"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          {textToType}
+        </motion.div>
+
         <textarea
           ref={inputRef}
           value={userInput}
@@ -183,7 +224,14 @@ export default function Home() {
           rows="10"
           className="w-full p-4 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        
+
+        <div className="mt-4 w-full bg-gray-200 rounded-full h-3">
+          <div
+            className={clsx('h-3 rounded-full', progress === 100 ? 'bg-green-500' : 'bg-blue-500')}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
         <div className="flex justify-between mt-4">
           <div className="text-gray-700 font-medium">Time: {timer}s</div>
           <div className="text-gray-700 font-medium">Accuracy: {accuracy}%</div>
@@ -191,14 +239,36 @@ export default function Home() {
 
         <div className="mt-4">
           <p className="text-xl font-semibold">Your Speed: {wpm} WPM</p>
+          <p className="text-red-500">Errors: {errors}</p>
         </div>
-        
-        <button
-          onClick={resetTest}
-          className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-        >
-          Restart Test
-        </button>
+
+        <div className="mt-6 flex justify-between items-center">
+          <button
+            onClick={resetTest}
+            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            <RefreshIcon className="w-5 h-5 mr-2" />
+            Restart Test
+          </button>
+
+          {isTyping ? (
+            <button
+              onClick={stopTimer}
+              className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              <StopIcon className="w-5 h-5 mr-2" />
+              Stop
+            </button>
+          ) : (
+            <button
+              onClick={startTimer}
+              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            >
+              <PlayIcon className="w-5 h-5 mr-2" />
+              Start
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Modal for results */}
@@ -209,6 +279,7 @@ export default function Home() {
             <div className="text-center">
               <p className="text-lg">Your WPM: {wpm}</p>
               <p className="text-lg">Accuracy: {accuracy}%</p>
+              <p className="text-lg text-red-500">Errors: {errors}</p>
             </div>
             <div className="mt-4 text-center">
               <button
