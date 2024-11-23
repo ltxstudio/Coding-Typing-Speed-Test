@@ -82,7 +82,7 @@ fun sumArray(arr: IntArray): Int {
 
 fun main() {
   val nums = intArrayOf(1, 2, 3, 4, 5)
-  println("Sum: {sumArray(nums)}")
+  println("Sum: ${sumArray(nums)}")
 }`,
   ruby: `# Ruby - Check Even or Odd
 def even_or_odd(num)
@@ -238,7 +238,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          dangerouslySetInnerHTML={{ __html: highlightedText || `<pre><code>${textToType}</code></pre>` }}
+          dangerouslySetInnerHTML={{ __html: highlightedText || `<pre><code class="language-${language}">${textToType}</code></pre>` }}
         />
 
         <textarea
