@@ -82,7 +82,7 @@ fun sumArray(arr: IntArray): Int {
 
 fun main() {
   val nums = intArrayOf(1, 2, 3, 4, 5)
-  println("Sum: ${sumArray(nums)}")
+  println("Sum: {sumArray(nums)}")
 }`,
   ruby: `# Ruby - Check Even or Odd
 def even_or_odd(num)
