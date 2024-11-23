@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import ReactTooltip from 'react-tooltip';
 import { PlayIcon, StopIcon, RefreshIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline';
 import { motion } from 'framer-motion';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css'; // Include a theme
 
 const codeSnippets = {
   js: `// JavaScript
@@ -173,6 +175,10 @@ export default function Home() {
     setDarkMode(!darkMode);
   };
 
+  useEffect(() => {
+    Prism.highlightAll(); // Reapply syntax highlighting whenever code changes
+  }, [textToType]);
+
   return (
     <div className={clsx('min-h-screen p-4', darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100')}>
       <div className="flex justify-between items-center mb-6">
@@ -213,7 +219,9 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          {textToType}
+          <pre className="language-javascript">
+            <code>{textToType}</code>
+          </pre>
         </motion.div>
 
         <textarea
