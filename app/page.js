@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import ReactTooltip from 'react-tooltip';
-import { PlayIcon, StopIcon, RefreshIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline';
+import { PlayIcon, StopIcon, RefreshIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // Include a theme
