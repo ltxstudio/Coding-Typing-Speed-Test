@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { PlayIcon, StopIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Prism from 'prismjs';
-import 'prismjs/themes/prism-tomorrow.css'; // Include a theme
+import 'prismjs/themes/prism-tomorrow.css'; // Include PrismJS theme
 
 const codeSnippets = {
   js: `// JavaScript
@@ -19,14 +19,25 @@ def greet(name):
     return "Hello, " + name
 
 print(greet("World"))`,
-  // Add more snippets here
-};
+  go: `// Go
+package main
 
-const leaderboardData = [
-  { name: 'Alice', wpm: 75 },
-  { name: 'Bob', wpm: 60 },
-  { name: 'Carol', wpm: 85 },
-];
+import "fmt"
+
+func greet(name string) string {
+  return "Hello, " + name
+}
+
+func main() {
+  fmt.Println(greet("World"))
+}`,
+  java: `// Java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Hello, World!");
+  }
+}`,
+};
 
 export default function Home() {
   const [language, setLanguage] = useState('js');
@@ -36,15 +47,16 @@ export default function Home() {
   const [isTyping, setIsTyping] = useState(false);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
-  const [progress, setProgress] = useState(0);
   const [errors, setErrors] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
   const inputRef = useRef(null);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    Prism.highlightAll();
+    Prism.highlightAll(); // Reapply syntax highlighting whenever code changes
   }, [textToType]);
 
   const startTimer = () => {
@@ -64,15 +76,15 @@ export default function Home() {
     setTimer(0);
     setWpm(0);
     setAccuracy(100);
-    setProgress(0);
     setErrors(0);
+    setProgress(0);
     setShowModal(false);
   };
 
-  const handleLanguageChange = (event) => {
-    const selectedLang = event.target.value;
-    setLanguage(selectedLang);
-    setTextToType(codeSnippets[selectedLang]);
+  const handleLanguageChange = (e) => {
+    const selectedLanguage = e.target.value;
+    setLanguage(selectedLanguage);
+    setTextToType(codeSnippets[selectedLanguage]);
     resetTest();
   };
 
@@ -97,7 +109,11 @@ export default function Home() {
   };
 
   const countErrors = (input, text) => {
-    return [...text].reduce((acc, char, i) => acc + (char !== input[i] ? 1 : 0), 0);
+    let errorCount = 0;
+    for (let i = 0; i < Math.max(input.length, text.length); i++) {
+      if (input[i] !== text[i]) errorCount++;
+    }
+    return errorCount;
   };
 
   const calculateWPM = (input) => {
@@ -107,11 +123,13 @@ export default function Home() {
   };
 
   const calculateAccuracy = (input) => {
-    const correct = [...textToType].reduce((acc, char, i) => acc + (char === input[i] ? 1 : 0), 0);
-    setAccuracy(Math.round((correct / textToType.length) * 100));
+    const correctChars = input.split('').filter((char, i) => char === textToType[i]).length;
+    setAccuracy(Math.round((correctChars / textToType.length) * 100));
   };
 
-  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
     <div className={clsx('min-h-screen p-4', darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100')}>
@@ -127,15 +145,20 @@ export default function Home() {
       </div>
 
       <div className="mb-6">
-        <label htmlFor="language" className="text-lg mr-2">Choose Language:</label>
+        <label htmlFor="language" className="text-lg mr-2">
+          Choose Language:
+        </label>
         <select
           id="language"
           value={language}
           onChange={handleLanguageChange}
-          className="p-2 border-2 rounded-md"
+          className="p-2 border-2 border-gray-300 rounded-md"
         >
-          <option value="js">JavaScript</option>
-          <option value="py">Python</option>
+          {Object.keys(codeSnippets).map((lang) => (
+            <option key={lang} value={lang}>
+              {lang.toUpperCase()}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -157,7 +180,7 @@ export default function Home() {
           onChange={handleInputChange}
           placeholder="Start typing here..."
           rows="8"
-          className="w-full p-4 border rounded-md focus:ring-2"
+          className="w-full p-4 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <div className="mt-4 bg-gray-200 rounded-full h-3">
@@ -167,12 +190,17 @@ export default function Home() {
           />
         </div>
 
-        <div className="mt-4 flex justify-between">
+        <div className="flex justify-between mt-4">
           <p>Time: {timer}s</p>
           <p>Accuracy: {accuracy}%</p>
         </div>
 
-        <div className="mt-4 flex justify-between">
+        <div className="mt-4">
+          <p className="text-xl font-semibold">WPM: {wpm}</p>
+          <p className="text-red-500">Errors: {errors}</p>
+        </div>
+
+        <div className="mt-6 flex justify-between">
           <button
             onClick={resetTest}
             className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md"
@@ -202,10 +230,17 @@ export default function Home() {
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg">
-            <h2>Test Complete!</h2>
-            <p>Your WPM: {wpm}</p>
-            <p>Accuracy: {accuracy}%</p>
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Test Complete!</h2>
+            <p className="text-lg">WPM: {wpm}</p>
+            <p className="text-lg">Accuracy: {accuracy}%</p>
+            <p className="text-lg text-red-500">Errors: {errors}</p>
+            <button
+              onClick={resetTest}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+            >
+              Try Again
+            </button>
           </div>
         </div>
       )}
