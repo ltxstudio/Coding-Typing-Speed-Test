@@ -1,101 +1,105 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [author, setAuthor] = useState('');
+  const [metaTags, setMetaTags] = useState('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleGenerate = (e) => {
+    e.preventDefault();
+
+    const generatedMetaTags = `
+      <meta name="description" content="${description}" />
+      <meta name="keywords" content="${keywords}" />
+      <meta name="author" content="${author}" />
+      <title>${title}</title>
+      <meta property="og:title" content="${title}" />
+      <meta property="og:description" content="${description}" />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="your-image-url.jpg" />
+      <meta name="twitter:title" content="${title}" />
+      <meta name="twitter:description" content="${description}" />
+      <meta name="twitter:image" content="your-image-url.jpg" />
+    `;
+
+    setMetaTags(generatedMetaTags);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+      <form onSubmit={handleGenerate}>
+        <div className="mb-4">
+          <label htmlFor="title" className="block text-lg font-medium">Title</label>
+          <input
+            type="text"
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        <div className="mb-4">
+          <label htmlFor="description" className="block text-lg font-medium">Description</label>
+          <input
+            type="text"
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="keywords" className="block text-lg font-medium">Keywords</label>
+          <input
+            type="text"
+            id="keywords"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="author" className="block text-lg font-medium">Author</label>
+          <input
+            type="text"
+            id="author"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-indigo-600 text-white p-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Generate Meta Tags
+        </button>
+      </form>
+
+      {metaTags && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-indigo-600 mb-2">Generated Meta Tags</h2>
+          <textarea
+            rows="10"
+            cols="50"
+            value={metaTags}
+            readOnly
+            className="w-full p-3 border border-gray-300 rounded-md font-mono text-sm bg-gray-50"
+          />
+        </div>
+      )}
     </div>
   );
 }
