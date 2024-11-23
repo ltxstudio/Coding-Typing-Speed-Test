@@ -2,20 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Custom global styles */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif; /* Default font */
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600; /* Use bolder font for headings */
+}
+
+/* Dark mode customization */
+.dark {
+  background-color: #1a202c; /* Dark background */
+  color: white; /* Light text on dark background */
+}
+
+.text-primary {
+  color: #4C51BF; /* Primary color */
+}
+
+.bg-primary {
+  background-color: #4C51BF; /* Primary color for backgrounds */
+}
+
+.bg-secondary {
+  background-color: #F6AD55; /* Secondary color */
+}
+
+.text-secondary {
+  color: #F6AD55; /* Secondary text color */
+}
+
+.border-primary {
+  border-color: #4C51BF;
+}
+
+/* Button styles */
+.btn {
+  @apply inline-block px-6 py-2 font-semibold rounded-md transition duration-300;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-orange-600;
+}
+
+/* Responsive Text */
+.text-lg-responsive {
+  @apply text-lg md:text-xl lg:text-2xl;
+}
+
+.text-sm-responsive {
+  @apply text-sm md:text-base lg:text-lg;
+}
+
+.container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
 }
